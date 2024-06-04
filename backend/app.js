@@ -10,6 +10,13 @@ const port = 8000;
 const http = require('http');
 // const socketIo = require('socket.io');
 const {Server} = require('socket.io');
+const { format } = require('date-fns');
+
+// Function to format the timestamp
+const getFormattedTimestamp = () => {
+  const now = new Date();
+  return format(now, 'yyyy-MM-dd HH:mm:ss');
+};
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -55,10 +62,12 @@ io.on('connection', socket => {
   socket.on('privateMessage', ({recipientEmail, message}) => {
     const recipientSocketId = users[recipientEmail];
     console.log(recipientEmail,message)
+    const timestamp = getFormattedTimestamp();
     if (recipientSocketId) {
       io.to(recipientSocketId).emit('privateMessage', {
         sender: socket.id,
         message,
+        timestamp
       });
     } else {
       console.log('User not connected:', recipientEmail);
